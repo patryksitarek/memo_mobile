@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.provider.BaseColumns
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.CheckBox
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.note_creator.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -14,9 +17,14 @@ import java.util.*
 
 class Create_Edit_Note : AppCompatActivity() {
 
+    private lateinit var myRef: DatabaseReference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.note_creator)
+
+        val firebase = FirebaseDatabase.getInstance()
+        myRef = firebase.getReference("ArrayData")
 
         //EDYTOWANIE
         if (intent.hasExtra("title"))  noteTitle.setText(intent.getStringExtra("title"))
@@ -31,35 +39,32 @@ class Create_Edit_Note : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean { //ODPOWIEDNIK onClickListener
         if (item?.itemId == R.id.saveButton) {
-            val dbHelper = DatabaseHelper(applicationContext)
-            val db = dbHelper.writableDatabase
 
+            //------------------------------ZAPISYWANIE---------------------------------------------
             val title = noteTitle.text.toString()
             val content = noteContent.text.toString()
             val date = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
             val currentDateandTime: String = date.format(Date())
 
-            val value = ContentValues()
-            value.put(TableInfo.TABLE_COLUMN_TITLE, title)
-            value.put(TableInfo.TABLE_COLUMN_CONTENT, content)
-            value.put(TableInfo.TABLE_COLUMN_DATE, currentDateandTime)
-
             if (!title.isNullOrEmpty() || !content.isNullOrEmpty()) {
-                //EDYCJA ISTNIEJACEJ
+
+                //EDYCJA ISTNIEJACEJ NOTATKI
                 if (intent.hasExtra("id")) {
-                    db.update(TableInfo.TABLE_NAME, value, BaseColumns._ID + "=?", arrayOf(intent.getStringExtra("id")))
+                    val firebaseInput = DatabaseRow(intent.getStringExtra("id"), title, content, currentDateandTime)
+                    myRef.child(intent.getStringExtra("id")).setValue(firebaseInput)
                 }
-                //TWORZENIE NOWEJ
+
+                //TWORZENIE NOWEJ NOTATKI
                 else {
-                    db.insertOrThrow(TableInfo.TABLE_NAME, null, value)
+                    val firebaseInput = DatabaseRow("${Date().time}", title, content, currentDateandTime)
+                    myRef.child("${Date().time}").setValue(firebaseInput)
                 }
 
                 Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT).show()
-                db.close()
                 this.finish()
             }
             else Toast.makeText(applicationContext, "Note is empty!", Toast.LENGTH_SHORT).show()
-
+            //--------------------------------------------------------------------------------------
         }
         return super.onOptionsItemSelected(item)
     }
