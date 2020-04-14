@@ -18,7 +18,7 @@
 
 
     <EditText
-        android:id="@+id/username"
+        android:id="@+id/signUpUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -32,7 +32,7 @@
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:paddingLeft="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/email"
+        app:layout_constraintBottom_toTopOf="@+id/signUpEmail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:importantForAutofill="no" />
@@ -42,14 +42,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
-        app:layout_constraintBottom_toBottomOf="@+id/username"
-        app:layout_constraintStart_toEndOf="@+id/username"
-        app:layout_constraintTop_toTopOf="@+id/username"
+        app:layout_constraintBottom_toBottomOf="@+id/signUpUsername"
+        app:layout_constraintStart_toEndOf="@+id/signUpUsername"
+        app:layout_constraintTop_toTopOf="@+id/signUpUsername"
         app:srcCompat="@drawable/data_mismatch"
         android:visibility="gone"/>
 
     <EditText
-        android:id="@+id/email"
+        android:id="@+id/signUpEmail"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -63,12 +63,12 @@
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:paddingLeft="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/email_repeat"
+        app:layout_constraintBottom_toTopOf="@+id/signUpEmailRepeat"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/email_repeat"
+        android:id="@+id/signUpEmailRepeat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -82,7 +82,7 @@
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:paddingLeft="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/password"
+        app:layout_constraintBottom_toTopOf="@+id/signUpPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -92,15 +92,15 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/email_repeat"
-        app:layout_constraintStart_toEndOf="@+id/email_repeat"
-        app:layout_constraintTop_toTopOf="@+id/email"
+        app:layout_constraintBottom_toBottomOf="@+id/signUpEmailRepeat"
+        app:layout_constraintStart_toEndOf="@+id/signUpEmailRepeat"
+        app:layout_constraintTop_toTopOf="@+id/signInPassword"
         app:srcCompat="@drawable/data_mismatch" />
 
 
 
     <EditText
-        android:id="@+id/password"
+        android:id="@+id/signUpPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -114,12 +114,12 @@
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:paddingLeft="15dp"
-        app:layout_constraintBottom_toTopOf="@+id/password_repeat"
+        app:layout_constraintBottom_toTopOf="@+id/signUpPasswordRepeat"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/password_repeat"
+        android:id="@+id/signUpPasswordRepeat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -143,9 +143,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="@+id/password_repeat"
-        app:layout_constraintStart_toEndOf="@+id/password_repeat"
-        app:layout_constraintTop_toBottomOf="@+id/email_repeat"
+        app:layout_constraintBottom_toBottomOf="@+id/signUpPasswordRepeat"
+        app:layout_constraintStart_toEndOf="@+id/signUpPasswordRepeat"
+        app:layout_constraintTop_toBottomOf="@+id/signUpEmailRepeat"
         app:srcCompat="@drawable/data_mismatch" />
 
     <Button
