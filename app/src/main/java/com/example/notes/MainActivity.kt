@@ -28,6 +28,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+        val intent = Intent(applicationContext, SignIn::class.java)
+        startActivity(intent)
+        finish()
+        return
     }
 
     fun onClickCreateNote(v: View) {
@@ -66,8 +72,8 @@ class MainActivity : AppCompatActivity() {
         //------------------------------------------------------------------------------------------
 
 
-        recycler_view.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL) //lepsza siatka
-//        recycler_view.layoutManager = LinearLayoutManager(applicationContext) //lista
+//        recycler_view.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL) //siatka
+        recycler_view.layoutManager = LinearLayoutManager(applicationContext) //lista
     }
 
     private fun setAdapter(arrayData: ArrayList<Map<String, Any>>) {
