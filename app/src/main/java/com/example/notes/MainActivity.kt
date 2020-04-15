@@ -31,9 +31,9 @@ class MainActivity : AppCompatActivity() {
 
 
         val intent = Intent(applicationContext, SignIn::class.java)
-        startActivity(intent)
-        finish()
-        return
+        //startActivity(intent)
+        //finish()
+        //return
     }
 
     fun onClickCreateNote(v: View) {
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
         //----------------------------WCZYTAJ NOTATKI DO LISTY--------------------------------------
 
         val docRef = db.collection("notes")
-            .whereEqualTo("author", db.document("users/lidOuRgtfJTsiq0vABRnMHmnl8H3"))
+            .whereEqualTo("author", db.document("users/lidOuRgtfJTsiq0vABRnMHmnl8H3")).orderBy("title")
             // .whereEqualTo("author", currentlyAuthenticatedUserDocumentReference)
 
         docRef.addSnapshotListener { snapshot, e ->

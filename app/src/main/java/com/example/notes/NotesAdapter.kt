@@ -65,7 +65,7 @@ class CardViewAdapter(val context: Context,
             val currentNote = notes[holder.adapterPosition]
             val editId = currentNote["id"] ?: ""
             val editTitle = currentNote["title"] ?: ""
-            val editContent = currentNote["content"] ?: ""
+            val editContent = currentNote["text"] ?: ""
             val editDate = currentNote["date"] ?: ""
 
             editIntent.putExtra("id", editId as String)
