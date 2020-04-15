@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.firestore.*
 import com.google.firebase.ktx.Firebase
@@ -24,16 +25,18 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var notesList: ArrayList<Map<String, Any>>
     private val db = FirebaseFirestore.getInstance()
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-
-        val intent = Intent(applicationContext, SignIn::class.java)
-        //startActivity(intent)
-        //finish()
-        //return
+        if (FirebaseAuth.getInstance().currentUser == null) {
+            val intent = Intent(applicationContext, SignIn::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
     }
 
     fun onClickCreateNote(v: View) {

@@ -1,25 +1,27 @@
 package com.example.notes
 
-import android.content.ContentValues
+//import com.google.firebase.database.DatabaseReference
+//import com.google.firebase.database.FirebaseDatabase
+
+import android.accessibilityservice.GestureDescription
+import android.content.DialogInterface
 import android.os.Bundle
-import android.provider.BaseColumns
+import android.text.InputType
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-//import com.google.firebase.database.DatabaseReference
-//import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.*
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.note_creator.*
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class Create_Edit_Note : AppCompatActivity() {
+
+    private var shareNoteTo = ""
 
 //    private lateinit var myRef: DatabaseReference
     private val db = FirebaseFirestore.getInstance()
@@ -100,6 +102,12 @@ class Create_Edit_Note : AppCompatActivity() {
                 }
 
             }
+            else if (item.itemId == R.id.shareButton) {
+
+
+
+            }
+
             else Toast.makeText(applicationContext, "Note is empty!", Toast.LENGTH_SHORT).show()
             //--------------------------------------------------------------------------------------
         }

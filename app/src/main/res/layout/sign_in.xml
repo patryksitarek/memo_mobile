@@ -24,7 +24,7 @@
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onClickSignUp"
+        android:onClick="onClickNeedAccount"
         android:text="@string/signUpReference"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -93,15 +93,16 @@
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:background="@color/colorPrimary"
+        android:onClick="onClickSignInButton"
         android:text="@string/signIn"
         android:textColor="@android:color/white"
         android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintBottom_toTopOf="@+id/signUpButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/signUpButton"
         style="@style/Widget.AppCompat.Button.Borderless.Colored"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
