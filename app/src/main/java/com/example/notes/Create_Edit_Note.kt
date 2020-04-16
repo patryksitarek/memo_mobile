@@ -17,6 +17,9 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.note_creator.*
@@ -29,10 +32,12 @@ class Create_Edit_Note : AppCompatActivity() {
     private var shareNoteTo = ""
 
 //    private lateinit var myRef: DatabaseReference
+    private lateinit var auth: FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        auth = FirebaseAuth.getInstance()
         setContentView(R.layout.note_creator)
 
         //EDYTOWANIE
@@ -65,7 +70,7 @@ class Create_Edit_Note : AppCompatActivity() {
                        // Add
                         noteContent.setText(n["text"] as String)
                     }
-
+                    // TODO: fix
                     val data = hashMapOf(
                         "author" to db.document("users/lidOuRgtfJTsiq0vABRnMHmnl8H3"),
                         "title" to title,
@@ -87,7 +92,7 @@ class Create_Edit_Note : AppCompatActivity() {
                     //TWORZENIE NOWEJ NOTATKI
                 } else {
                     val data = hashMapOf(
-                        "author" to db.document("users/lidOuRgtfJTsiq0vABRnMHmnl8H3"),
+                        "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
                         "title" to title,
                         "text" to content,
                         "created" to FieldValue.serverTimestamp()
@@ -127,13 +132,64 @@ class Create_Edit_Note : AppCompatActivity() {
 
             mDialogView.popupShare.setOnClickListener {
                 mAlertDialog.dismiss()
-                //miejsce na obsługę udostępniania
+                var noteId = ""
+                if (intent.hasExtra("id")) {
+                    noteId = intent.getStringExtra("id")
+                }
+                if (noteId == "") {
+                    Toast.makeText(applicationContext, "Sharing failed", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                // miejsce na obsługę udostępniania
+                val shareEmail: String = mDialogView.shareNoteTo.text.toString()
+                db.collection("users").whereEqualTo("email", shareEmail).get()
+                    .addOnSuccessListener { snapshot ->
+                        val shareWith = snapshot.documents[0].reference
+                        val shareNote = db.collection("notes").document(noteId).get()
+                            .addOnSuccessListener { docSnapshot ->
+                                val authors =
+                                    docSnapshot.get("author") as ArrayList<DocumentReference>
+                                authors.add(shareWith)
+                                docSnapshot.reference.update("author", authors)
+                                    .addOnSuccessListener { _ ->
+                                        Toast.makeText(
+                                            applicationContext,
+                                            "Note shared",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                            }
+                    }.addOnFailureListener {
+                        Toast.makeText(applicationContext, "Sharing failed", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                }
             }
-
-
+            return super.onOptionsItemSelected(item)
         }
 
-        return super.onOptionsItemSelected(item)
-    }
+//                var noteId : String?
+//                if (intent.hasExtra("id")) {
+//                    noteId = intent.extras?.get("id") as String
+//                } else {
+//                    // docelowo test sprawdzajacy czy notatka jest juz utworzona powinien kontrolowac pojawianie sie przycisku
+//                    // note doesn't exist
+//                    Toast.makeText(applicationContext, "Sharing failed", Toast.LENGTH_SHORT).show()
+//                    return false
+//                }
+//            val intent = Intent(applicationContext, ShareNote::class.java)
+//            startActivity(intent)
+                // docelowo start activity^, które pyta o użytkownika - podajemy email, a potem trzeba przeszukać
+                // wszystkich użytkowników w bazie w poszukiwaniu tego adresu:
+                // db.collection('users').whereEqualTo('email', <email podany przez usera>).get()
+                // To jest promise, więc albo trzeba awaitować, albo w .then() albo coś, w każdym razie docelowo user
+                // któremu udostępniamy notatke jest już znany, tutaj hardcoded
+
+
+
+
+//        }
+//
+//    }
     //----------------------------------------------------------------------------------------------
 }

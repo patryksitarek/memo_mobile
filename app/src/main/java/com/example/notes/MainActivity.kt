@@ -30,8 +30,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        auth = FirebaseAuth.getInstance()
 
-        if (FirebaseAuth.getInstance().currentUser == null) {
+        if (auth.currentUser == null) {
             val intent = Intent(applicationContext, SignIn::class.java)
             startActivity(intent)
             finish()
@@ -51,8 +52,9 @@ class MainActivity : AppCompatActivity() {
         //----------------------------WCZYTAJ NOTATKI DO LISTY--------------------------------------
 
         val docRef = db.collection("notes")
-            .whereEqualTo("author", db.document("users/lidOuRgtfJTsiq0vABRnMHmnl8H3")).orderBy("title")
-            // .whereEqualTo("author", currentlyAuthenticatedUserDocumentReference)
+            .whereArrayContains("author", db.document("users/${auth.currentUser!!.uid}"))
+//            .orderBy("created")
+//            .whereEqualTo("author", db.document("users/lidOuRgtfJTsiq0vABRnMHmnl8H3"))
 
         docRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
