@@ -1,3 +1,16 @@
 <resources>
-    <string name="app_name">Notes</string>
+    <string name="app_name">Memo Lite</string>
+
+    //------------SIGN-IN-UP-LAYOUT-------------
+    <string name="signIn">Sign in</string>
+    <string name="signUp">Sign up</string>
+    <string name="signUpReference">Need an account?</string>
+    <string name="signInReference">Have an account?</string>
+    <string name="username">username</string>
+    <string name="email">e-mail</string>
+    <string name="repeatEmail">repeat e-mail</string>
+    <string name="password">password</string>
+    <string name="repeatPassword">repeat password</string>
+    <string name="signWithGoogle">sign in with google</string>
+    <string name="forgotPassword">forgot your password?</string>
 </resources>

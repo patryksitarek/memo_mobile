@@ -9,7 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Create_Edit_Note"></activity>
+        <activity android:name=".SignUp"></activity>
+        <activity android:name=".SignIn" />
+        <activity android:name=".Create_Edit_Note" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
