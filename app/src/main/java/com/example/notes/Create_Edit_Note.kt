@@ -68,26 +68,25 @@ class Create_Edit_Note : AppCompatActivity() {
                     val noteId = intent.extras?.get("id") as String
                     db.collection("notes").document(noteId).get().addOnSuccessListener { n ->
                        // Add
+                         val noteRef = n.reference
                         noteContent.setText(n["text"] as String)
+                        val authors = n.get("author") as ArrayList<DocumentReference>
+                        val data = hashMapOf(
+                            "author" to authors,
+                            "title" to title,
+                            "text" to content
+                        )
+                        db.collection("notes").document(noteId).update(data as Map<String, Any>)
+                            .addOnSuccessListener {
+                                Log.d("FragmentActivity", "Successfully edited!")
+                                Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT).show()
+                                this.finish()
+                            }
+                            .addOnFailureListener { exception ->
+                                Log.w("FragmentActivity", "Error writing document", exception)
+                                Toast.makeText(applicationContext, "Failed to save", Toast.LENGTH_SHORT).show()
+                            }
                     }
-                    // TODO: fix
-                    val data = hashMapOf(
-                        "author" to db.document("users/lidOuRgtfJTsiq0vABRnMHmnl8H3"),
-                        "title" to title,
-                        "text" to content
-                    )
-                    db.collection("notes").document(noteId)
-                        .update(data)
-                        .addOnSuccessListener {
-                            Log.d("FragmentActivity", "Successfully edited!")
-                            Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT).show()
-                            this.finish()
-                        }
-                        .addOnFailureListener { exception ->
-                            Log.w("FragmentActivity", "Error writing document", exception)
-                            Toast.makeText(applicationContext, "Failed to save", Toast.LENGTH_SHORT).show()
-                        }
-//
 
                     //TWORZENIE NOWEJ NOTATKI
                 } else {

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.note_view.view.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -16,7 +17,7 @@ class CardViewAdapter(val context: Context,
                       var notes: ArrayList<Map<String, Any>>) : RecyclerView.Adapter<MyViewHolder>() {
 
 //    var multiCheckMode = false
-
+    private val db = FirebaseFirestore.getInstance()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val cardView_note = layoutInflater.inflate(R.layout.note_view, parent, false)
@@ -83,7 +84,8 @@ class CardViewAdapter(val context: Context,
         //----------------------------------USUWANIE NOTATKI----------------------------------------
         cardView_note.setOnLongClickListener(object: View.OnLongClickListener{
             override fun onLongClick(v: View?): Boolean {
-                // TODO: Implement deleting notes
+                val noteId = notes[holder.adapterPosition]["id"]
+                db.collection("notes").document(noteId.toString()).delete()
                 return true
             }
         })
