@@ -4,10 +4,13 @@ package com.example.notes
 //import com.google.firebase.database.FirebaseDatabase
 
 import android.accessibilityservice.GestureDescription
+import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
 import android.text.InputType
 import android.util.Log
+import android.util.Patterns
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
@@ -17,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.note_creator.*
+import kotlinx.android.synthetic.main.popup_input.view.*
+import kotlinx.android.synthetic.main.sign_up.*
 
 
 class Create_Edit_Note : AppCompatActivity() {
@@ -102,15 +107,32 @@ class Create_Edit_Note : AppCompatActivity() {
                 }
 
             }
-            else if (item.itemId == R.id.shareButton) {
-
-
-
-            }
 
             else Toast.makeText(applicationContext, "Note is empty!", Toast.LENGTH_SHORT).show()
             //--------------------------------------------------------------------------------------
         }
+
+        else if (item.itemId == R.id.shareButton) {
+
+            //Inflate the dialog with custom view
+            val mDialogView = LayoutInflater.from(this).inflate(R.layout.popup_input, null)
+            //AlertDialogBuilder
+            val mBuilder = AlertDialog.Builder(this).setView(mDialogView)
+            //show dialog
+            val mAlertDialog = mBuilder.show()
+
+            mDialogView.popupCancel.setOnClickListener {
+                mAlertDialog.dismiss()
+            }
+
+            mDialogView.popupShare.setOnClickListener {
+                mAlertDialog.dismiss()
+                //miejsce na obsługę udostępniania
+            }
+
+
+        }
+
         return super.onOptionsItemSelected(item)
     }
     //----------------------------------------------------------------------------------------------
