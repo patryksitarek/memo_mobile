@@ -30,6 +30,6 @@
         android:onClick="onClickCreateNote"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/add_button_icon" />
+        app:srcCompat="@drawable/add_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

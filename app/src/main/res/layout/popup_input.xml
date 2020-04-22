@@ -31,27 +31,29 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp">
+        android:paddingTop="10dp">
+
+        <Space
+            android:layout_width="125dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
 
         <Button
             android:id="@+id/popupCancel"
-            style="@style/Widget.AppCompat.Button.Borderless"
+            style="@android:style/Widget.Material.Button.Borderless.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:background="@color/colorAccent"
+            android:background="@android:color/transparent"
             android:text="cancel"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/colorAccent"
             android:textSize="16sp" />
         "/>
 
         <Button
             android:id="@+id/popupShare"
-            style="@style/Widget.AppCompat.Button.Borderless"
+            style="@android:style/Widget.Material.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
