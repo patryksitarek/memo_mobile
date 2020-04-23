@@ -78,6 +78,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="16dp"
         android:background="@color/colorPrimary"
+        android:onClick="onClickSignWithGoogle"
         android:text="@string/signWithGoogle"
         android:textColor="@android:color/white"
         android:textSize="14sp"
