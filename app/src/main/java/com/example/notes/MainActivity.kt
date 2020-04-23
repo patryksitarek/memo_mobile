@@ -1,25 +1,17 @@
 package com.example.notes
 
 import android.content.Intent
-import android.hardware.SensorManager.getOrientation
 import android.os.Bundle
-import android.provider.BaseColumns
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
-import android.widget.CheckBox
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
-import com.google.firebase.firestore.*
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.note_view.*
-import kotlinx.android.synthetic.main.note_view.view.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,6 +32,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_logout, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item?.itemId == R.id.signOutButton) {
+            auth.signOut()
+
+            val intent = intent
+            finish()
+            startActivity(intent)
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+
     fun onClickCreateNote(v: View) {
         System.out.println("Create note clicked")
         val intent = Intent(applicationContext, Create_Edit_Note::class.java)
@@ -53,10 +62,8 @@ class MainActivity : AppCompatActivity() {
 
         val docRef = db.collection("notes")
             .whereArrayContains("author", db.document("users/${auth.currentUser!!.uid}"))
-//            .orderBy("created")
-//            .whereEqualTo("author", db.document("users/lidOuRgtfJTsiq0vABRnMHmnl8H3"))
-
-        docRef.addSnapshotListener { snapshot, e ->
+            .orderBy("created", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, e ->
             if (e != null) {
                 Log.w("FragmentActivity", "Listen failed.", e)
                 return@addSnapshotListener

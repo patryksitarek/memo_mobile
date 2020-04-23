@@ -48,7 +48,8 @@ class CardViewAdapter(val context: Context,
 //                author = doc.data?.get("name") as String
 //                content.text = String.format("author: $author\n%s", content.text)
 //        }
-        val created = note["created"] as Timestamp
+        val tempfix = note["created"] == null
+        val created = if (!tempfix) note["created"] as Timestamp else Timestamp.now()
         val contentText = String.format("text: %s\n", note["text"])
 
         content.append(note["text"] as String)

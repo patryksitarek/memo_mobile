@@ -17,6 +17,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
@@ -31,7 +32,7 @@ class Create_Edit_Note : AppCompatActivity() {
 
     private var shareNoteTo = ""
 
-//    private lateinit var myRef: DatabaseReference
+    //    private lateinit var myRef: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
 
@@ -67,8 +68,8 @@ class Create_Edit_Note : AppCompatActivity() {
                 if (intent.hasExtra("id")) {
                     val noteId = intent.extras?.get("id") as String
                     db.collection("notes").document(noteId).get().addOnSuccessListener { n ->
-                       // Add
-                         val noteRef = n.reference
+                        // Add
+                        val noteRef = n.reference
                         noteContent.setText(n["text"] as String)
                         val authors = n.get("author") as ArrayList<DocumentReference>
                         val data = hashMapOf(
@@ -79,12 +80,20 @@ class Create_Edit_Note : AppCompatActivity() {
                         db.collection("notes").document(noteId).update(data as Map<String, Any>)
                             .addOnSuccessListener {
                                 Log.d("FragmentActivity", "Successfully edited!")
-                                Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    applicationContext,
+                                    "Note saved!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 this.finish()
                             }
                             .addOnFailureListener { exception ->
                                 Log.w("FragmentActivity", "Error writing document", exception)
-                                Toast.makeText(applicationContext, "Failed to save", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    applicationContext,
+                                    "Failed to save",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                     }
 
@@ -101,22 +110,20 @@ class Create_Edit_Note : AppCompatActivity() {
                         .add(data)
                         .addOnSuccessListener {
                             Log.d("FragmentActivity", "DocumentSnapshot successfully written!")
-                            Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT)
+                                .show()
                             this.finish()
                         }
                         .addOnFailureListener { e ->
                             Log.w("FragmentActivity", "Error writing document", e)
-                            Toast.makeText(applicationContext, "Failed to save", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(applicationContext, "Failed to save", Toast.LENGTH_SHORT)
+                                .show()
                         }
                 }
 
-            }
-
-            else Toast.makeText(applicationContext, "Note is empty!", Toast.LENGTH_SHORT).show()
+            } else Toast.makeText(applicationContext, "Note is empty!", Toast.LENGTH_SHORT).show()
             //--------------------------------------------------------------------------------------
-        }
-
-        else if (item.itemId == R.id.shareButton) {
+        } else if (item.itemId == R.id.shareButton) {
 
             //Inflate the dialog with custom view
             val mDialogView = LayoutInflater.from(this).inflate(R.layout.popup_input, null)
@@ -130,65 +137,65 @@ class Create_Edit_Note : AppCompatActivity() {
             }
 
             mDialogView.popupShare.setOnClickListener {
+                val title = noteTitle.text.toString()
+                val content = noteContent.text.toString()
                 mAlertDialog.dismiss()
+                System.out.println("Share in popup clicked")
                 var noteId = ""
                 if (intent.hasExtra("id")) {
                     noteId = intent.getStringExtra("id")
-                }
-                if (noteId == "") {
-                    Toast.makeText(applicationContext, "Sharing failed", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
                 }
                 // miejsce na obsługę udostępniania
                 val shareEmail: String = mDialogView.shareNoteTo.text.toString()
                 db.collection("users").whereEqualTo("email", shareEmail).get()
                     .addOnSuccessListener { snapshot ->
-                        val shareWith = snapshot.documents[0].reference
-                        val shareNote = db.collection("notes").document(noteId).get()
-                            .addOnSuccessListener { docSnapshot ->
-                                val authors =
-                                    docSnapshot.get("author") as ArrayList<DocumentReference>
-                                authors.add(shareWith)
-                                docSnapshot.reference.update("author", authors)
-                                    .addOnSuccessListener { _ ->
-                                        Toast.makeText(
-                                            applicationContext,
-                                            "Note shared",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                    }
+                        val shareWith = if (snapshot.size() > 0) snapshot.documents[0].reference else null
+                        if (shareWith == null) {
+                            Toast.makeText(applicationContext, "User doesn't exist", Toast.LENGTH_SHORT)
+                                .show()
+                        } else if (noteId == "") {
+                            val authors = arrayListOf<DocumentReference>(
+                                db.document("users/${auth.currentUser!!.uid}"),
+                                shareWith
+                            )
+                            db.collection("notes").add(hashMapOf(
+                                "author" to authors,
+                                "title" to title,
+                                "text" to content,
+                                "created" to FieldValue.serverTimestamp()
+                            )).addOnSuccessListener { _ ->
+                                Toast.makeText(
+                                    applicationContext,
+                                    "Note created and shared",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                finish()
                             }
-                    }.addOnFailureListener {
-                        Toast.makeText(applicationContext, "Sharing failed", Toast.LENGTH_SHORT)
-                            .show()
+                        } else {
+                            val shareNote = db.collection("notes").document(noteId).get()
+                                .addOnSuccessListener { docSnapshot ->
+                                    val authors =
+                                        docSnapshot.get("author") as ArrayList<DocumentReference>
+                                    authors.add(shareWith)
+                                    docSnapshot.reference.update("author", authors)
+                                        .addOnSuccessListener { _ ->
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Note shared",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                }.addOnFailureListener {
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Sharing failed",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
                     }
-                }
             }
-            return super.onOptionsItemSelected(item)
         }
-
-//                var noteId : String?
-//                if (intent.hasExtra("id")) {
-//                    noteId = intent.extras?.get("id") as String
-//                } else {
-//                    // docelowo test sprawdzajacy czy notatka jest juz utworzona powinien kontrolowac pojawianie sie przycisku
-//                    // note doesn't exist
-//                    Toast.makeText(applicationContext, "Sharing failed", Toast.LENGTH_SHORT).show()
-//                    return false
-//                }
-//            val intent = Intent(applicationContext, ShareNote::class.java)
-//            startActivity(intent)
-                // docelowo start activity^, które pyta o użytkownika - podajemy email, a potem trzeba przeszukać
-                // wszystkich użytkowników w bazie w poszukiwaniu tego adresu:
-                // db.collection('users').whereEqualTo('email', <email podany przez usera>).get()
-                // To jest promise, więc albo trzeba awaitować, albo w .then() albo coś, w każdym razie docelowo user
-                // któremu udostępniamy notatke jest już znany, tutaj hardcoded
-
-
-
-
-//        }
-//
-//    }
-    //----------------------------------------------------------------------------------------------
+        return super.onOptionsItemSelected(item)
+    }
 }
