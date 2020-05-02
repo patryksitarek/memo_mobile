@@ -40,11 +40,15 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item?.itemId == R.id.signOutButton) {
             auth.signOut()
-
             val intent = intent
             finish()
             startActivity(intent)
         }
+        else if (item?.itemId == R.id.calendarButton) {
+            val intentCal = Intent(this, Calendar::class.java)
+            startActivity(intentCal)
+        }
+
         return super.onOptionsItemSelected(item)
     }
 
@@ -91,4 +95,5 @@ class MainActivity : AppCompatActivity() {
     private fun setAdapter(arrayData: ArrayList<Map<String, Any>>) {
         recycler_view.adapter = CardViewAdapter(applicationContext, arrayData)
     }
+
 }

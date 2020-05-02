@@ -70,6 +70,7 @@ class SignUp : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(baseContext, "Account created", Toast.LENGTH_SHORT).show()
+                    System.out.println(auth.currentUser?.uid)
                     startActivity(Intent(this, SignIn::class.java))
                     finish()
                 } else {

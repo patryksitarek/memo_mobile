@@ -9,15 +9,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.note_view.view.*
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class CardViewAdapter(val context: Context,
                       var notes: ArrayList<Map<String, Any>>) : RecyclerView.Adapter<MyViewHolder>() {
 
-//    var multiCheckMode = false
     private val db = FirebaseFirestore.getInstance()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val cardView_note = layoutInflater.inflate(R.layout.note_view, parent, false)
@@ -31,7 +29,6 @@ class CardViewAdapter(val context: Context,
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
-        System.out.println("View Holder Bound")
         //-------------------------------------WYŚWIETLANIE NOTATKI---------------------------------
         val cardView_note = holder.view.cardView_note
         val title = holder.view.viewTitle
@@ -40,28 +37,23 @@ class CardViewAdapter(val context: Context,
         val context: Context = holder.view.context
 
         val note = notes[holder.adapterPosition]
-//        val authorRef = note["author"] as DocumentReference
-//        var author = "no data"
         content.text = ""
-//        authorRef.get()
-//            .addOnSuccessListener { doc ->
-//                author = doc.data?.get("name") as String
-//                content.text = String.format("author: $author\n%s", content.text)
-//        }
         val tempfix = note["created"] == null
         val created = if (!tempfix) note["created"] as Timestamp else Timestamp.now()
         val contentText = String.format("text: %s\n", note["text"])
 
         content.append(note["text"] as String)
         title.text = note["title"] as String
-        date.text = created.toDate().toString()
+
+        val sdf = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm")
+        val unixDate = java.util.Date(created.seconds * 1000)
+        date.text = sdf.format(unixDate)
         //------------------------------------------------------------------------------------------
 
 
 
         //-----------------------------------EDYCJA NOTATKI-----------------------------------------
         cardView_note.setOnClickListener {
-            System.out.println("LISTENER SET 1")
             val editIntent = Intent(context, Create_Edit_Note::class.java)
 
             val currentNote = notes[holder.adapterPosition]
@@ -92,17 +84,6 @@ class CardViewAdapter(val context: Context,
         })
 
         //------------------------------------------------------------------------------------------
-
-
-//        fun showHideCheckbox() {
-//            if (multiCheckMode) {
-//                cardView_note.noteChecked.setVisibility(View.VISIBLE)
-//                holder.view.noteChecked.setChecked(true)
-//            } else {
-//                holder.view.noteChecked.setVisibility(View.GONE)
-//            }
-//            notifyDataSetChanged()
-//        }
     }
 }
 

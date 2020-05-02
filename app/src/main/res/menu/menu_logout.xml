@@ -2,8 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/calendarButton"
+        android:icon="@drawable/ic_calendar"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/signOutButton"
-        android:title="sign out"
         android:icon="@drawable/ic_exit_button"
         app:showAsAction="ifRoom" />
 </menu>
