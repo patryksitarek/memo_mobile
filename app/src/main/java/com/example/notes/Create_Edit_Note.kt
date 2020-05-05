@@ -1,40 +1,43 @@
 package com.example.notes
 
-//import com.google.firebase.database.DatabaseReference
-//import com.google.firebase.database.FirebaseDatabase
-
-import android.accessibilityservice.GestureDescription
-import android.app.Dialog
-import android.content.DialogInterface
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.os.Bundle
-import android.text.InputType
 import android.util.Log
-import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.EditText
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.note_creator.*
 import kotlinx.android.synthetic.main.popup_input.view.*
-import kotlinx.android.synthetic.main.sign_up.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
-class Create_Edit_Note : AppCompatActivity() {
+class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener  {
 
     private var shareNoteTo = ""
 
-    //    private lateinit var myRef: DatabaseReference
+    private var day = 0
+    private var month = 0
+    private var year = 0
+    private var minute = 0
+    private var hour = 0
+    private var lastCalendarButton = -1
+    private lateinit var dateFromValue: Date
+    private lateinit var dateUntilValue: Date
+
     private lateinit var auth: FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
+
+    private lateinit var data: HashMap<String, Any>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +47,21 @@ class Create_Edit_Note : AppCompatActivity() {
         //EDYTOWANIE
         if (intent.hasExtra("title"))  noteTitle.setText(intent.getStringExtra("title"))
         if (intent.hasExtra("content")) noteContent.setText(intent.getStringExtra("content"))
+
+        //PRZYCISKI KALENDARZA
+        dateFromButton.setOnClickListener {
+            val dateDialog = DatePickerDialog()
+            dateDialog.show(supportFragmentManager, "date_picker")
+
+            lastCalendarButton = 0
+        }
+
+        dateUntilButton.setOnClickListener {
+            val dateDialog = DatePickerDialog()
+            dateDialog.show(supportFragmentManager, "date_picker")
+
+            lastCalendarButton = 1
+        }
     }
 
     //---------------------------------------MENU-BAR-----------------------------------------------
@@ -56,9 +74,6 @@ class Create_Edit_Note : AppCompatActivity() {
         if (item.itemId == R.id.saveButton) {
 
             //------------------------------ZAPISYWANIE---------------------------------------------
-            // TODO: prevent the UI from being all over the place after some of the operations
-            // TODO(IMPORTANT): make both the title and content required
-            // TODO(IMPORTANT): make the edit screen properly display note content
             val title = noteTitle.text.toString()
             val content = noteContent.text.toString()
 
@@ -99,12 +114,12 @@ class Create_Edit_Note : AppCompatActivity() {
 
                     //TWORZENIE NOWEJ NOTATKI
                 } else {
-                    val data = hashMapOf(
+                    data = hashMapOf(
                         "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
                         "title" to title,
                         "text" to content,
                         "created" to FieldValue.serverTimestamp()
-                    )
+                        )
 
                     db.collection("notes")
                         .add(data)
@@ -122,14 +137,9 @@ class Create_Edit_Note : AppCompatActivity() {
                 }
 
             } else Toast.makeText(applicationContext, "Note is empty!", Toast.LENGTH_SHORT).show()
-            //--------------------------------------------------------------------------------------
         } else if (item.itemId == R.id.shareButton) {
-
-            //Inflate the dialog with custom view
             val mDialogView = LayoutInflater.from(this).inflate(R.layout.popup_input, null)
-            //AlertDialogBuilder
             val mBuilder = AlertDialog.Builder(this).setView(mDialogView)
-            //show dialog
             val mAlertDialog = mBuilder.show()
 
             mDialogView.popupCancel.setOnClickListener {
@@ -145,7 +155,7 @@ class Create_Edit_Note : AppCompatActivity() {
                 if (intent.hasExtra("id")) {
                     noteId = intent.getStringExtra("id")
                 }
-                // miejsce na obsługę udostępniania
+
                 val shareEmail: String = mDialogView.shareNoteTo.text.toString()
                 db.collection("users").whereEqualTo("email", shareEmail).get()
                     .addOnSuccessListener { snapshot ->
@@ -197,5 +207,37 @@ class Create_Edit_Note : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    //DATA PICKER
+    override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
+        this.day = dayOfMonth
+        this.month = month
+        this.year = year
+
+
+        //GO TO TIME PICKER
+        val timeDialog = TimePickerDialog()
+        timeDialog.show(supportFragmentManager, "time_picker")
+    }
+
+    //TIME PICKER
+    override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
+        this.hour = hourOfDay
+        this.minute = minute
+
+        //UNIX DATE
+        val date = SimpleDateFormat("dd-MM-yyyy-HH-mm").parse("$day-$month-$year-$hour-$minute")
+
+        val userFormat = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm")
+        
+        if (lastCalendarButton == 0) {
+            dateFrom.setText(userFormat.format(date))
+            dateFromValue = date
+        } else {
+            dateUntil.setText(userFormat.format(date))
+            dateUntilValue = date
+        }
+
     }
 }
