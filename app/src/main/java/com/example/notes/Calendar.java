@@ -62,6 +62,7 @@ public class Calendar extends AppCompatActivity {
         compactCalendar.setListener(new CompactCalendarView.CompactCalendarViewListener() {
             @Override
             public void onDayClick(Date dateClicked) {
+                Log.d("xD", dateClicked.toString());
                 List<Event> events = compactCalendar.getEvents(dateClicked);
                 setAdapter(events);
             }
@@ -71,6 +72,7 @@ public class Calendar extends AppCompatActivity {
                 actionBar.setTitle(dateFormatMonth.format(firstDayOfNewMonth));
             }
         });
+        
     }
 
     void markEvents() {

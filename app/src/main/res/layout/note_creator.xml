@@ -81,7 +81,8 @@
                 android:gravity="center"
                 android:hint="from"
                 android:textAlignment="center"
-                android:textSize="14dp" />
+                android:textSize="16dp"
+                android:textColor="@color/colorPrimaryDark"/>
 
             <ImageButton
                 android:id="@+id/dateFromButton"
@@ -109,7 +110,8 @@
                 android:gravity="center"
                 android:hint="until"
                 android:textAlignment="center"
-                android:textSize="14dp" />
+                android:textSize="16dp"
+                android:textColor="@color/colorPrimaryDark"/>
 
             <ImageButton
                 android:id="@+id/dateUntilButton"

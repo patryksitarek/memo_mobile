@@ -111,7 +111,9 @@ class SignIn : AppCompatActivity() {
 
     fun updateUI(currentUser: FirebaseUser?) {
         if(currentUser != null) {
+            Toast.makeText(baseContext, "Hello!", Toast.LENGTH_SHORT).show()
             startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
         else {
             Toast.makeText(baseContext, "Authentication failed.", Toast.LENGTH_SHORT).show()

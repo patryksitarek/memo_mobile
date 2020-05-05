@@ -2,6 +2,7 @@ package com.example.notes
 
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -66,6 +67,14 @@ class CardViewAdapter(val context: Context,
             editIntent.putExtra("title", editTitle as String)
             editIntent.putExtra("content", editContent as String)
             editIntent.putExtra("date", editDate as String)
+
+            if (currentNote["isEvent"] == true) {
+                val editDateFrom = currentNote["start"].toString()
+                val editDateUntil = currentNote["end"].toString()
+                editIntent.putExtra("dateFrom", editDateFrom)
+                editIntent.putExtra("dateUntil", editDateUntil)
+            }
+
 
             context.startActivity(editIntent)
         }

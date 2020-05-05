@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         //----------------------------WCZYTAJ NOTATKI DO LISTY--------------------------------------
-
         val docRef = db.collection("notes")
             .whereArrayContains("author", db.document("users/${auth.currentUser!!.uid}"))
             .orderBy("created", Query.Direction.DESCENDING)

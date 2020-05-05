@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
@@ -47,11 +48,24 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         //EDYTOWANIE
         if (intent.hasExtra("title"))  noteTitle.setText(intent.getStringExtra("title"))
         if (intent.hasExtra("content")) noteContent.setText(intent.getStringExtra("content"))
+        if (intent.hasExtra("dateFrom")) {
+            val dateFromInSeconds = intent.getStringExtra("dateFrom").substring(18, 28) + "000"
+            val dateUntilInSeconds = intent.getStringExtra("dateUntil").substring(18, 28) + "000"
+
+            val sdf = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm")
+            val unixDateFrom = java.util.Date(dateFromInSeconds.toLong())
+            val unixDateUntil = java.util.Date(dateUntilInSeconds.toLong())
+            dateFrom.setText(sdf.format(unixDateFrom))
+            dateUntil.setText(sdf.format(unixDateUntil))
+        }
 
         //PRZYCISKI KALENDARZA
         dateFromButton.setOnClickListener {
             val dateDialog = DatePickerDialog()
             dateDialog.show(supportFragmentManager, "date_picker")
+
+            val test: Boolean = dateFrom.text.isEmpty()
+            Log.d("xD", test.toString())
 
             lastCalendarButton = 0
         }
@@ -82,16 +96,33 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                 //EDYCJA ISTNIEJACEJ NOTATKI
                 if (intent.hasExtra("id")) {
                     val noteId = intent.extras?.get("id") as String
+
                     db.collection("notes").document(noteId).get().addOnSuccessListener { n ->
                         // Add
                         val noteRef = n.reference
                         noteContent.setText(n["text"] as String)
                         val authors = n.get("author") as ArrayList<DocumentReference>
-                        val data = hashMapOf(
-                            "author" to authors,
-                            "title" to title,
-                            "text" to content
-                        )
+
+                        if (dateFrom.text.isEmpty() || dateUntil.text.isEmpty()) {
+                            data = hashMapOf(
+                                "author" to authors,
+                                "title" to title,
+                                "text" to content,
+                                "isEvent" to false
+                            )
+                        } else {
+                            data = hashMapOf(
+                                "author" to authors,
+                                "title" to title,
+                                "text" to content,
+                                "isEvent" to true,
+                                "start" to Timestamp(dateFromValue),
+                                "end" to Timestamp(dateUntilValue)
+                            )
+                        }
+
+
+
                         db.collection("notes").document(noteId).update(data as Map<String, Any>)
                             .addOnSuccessListener {
                                 Log.d("FragmentActivity", "Successfully edited!")
@@ -114,12 +145,26 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 
                     //TWORZENIE NOWEJ NOTATKI
                 } else {
-                    data = hashMapOf(
-                        "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
-                        "title" to title,
-                        "text" to content,
-                        "created" to FieldValue.serverTimestamp()
+
+                    if (dateFrom.text.isEmpty() || dateUntil.text.isEmpty()) {
+                        data = hashMapOf(
+                            "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
+                            "title" to title,
+                            "text" to content,
+                            "created" to FieldValue.serverTimestamp(),
+                            "isEvent" to false
                         )
+                    } else {
+                        data = hashMapOf(
+                            "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
+                            "title" to title,
+                            "text" to content,
+                            "created" to FieldValue.serverTimestamp(),
+                            "isEvent" to true,
+                            "start" to Timestamp(dateFromValue),
+                            "end" to Timestamp(dateUntilValue)
+                        )
+                    }
 
                     db.collection("notes")
                         .add(data)
@@ -209,28 +254,26 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         return super.onOptionsItemSelected(item)
     }
 
-    //DATA PICKER
+    //---------------------------------DATA-TIME-PICKERS--------------------------------------------
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
         this.day = dayOfMonth
         this.month = month
         this.year = year
-
 
         //GO TO TIME PICKER
         val timeDialog = TimePickerDialog()
         timeDialog.show(supportFragmentManager, "time_picker")
     }
 
-    //TIME PICKER
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
         this.hour = hourOfDay
         this.minute = minute
 
         //UNIX DATE
-        val date = SimpleDateFormat("dd-MM-yyyy-HH-mm").parse("$day-$month-$year-$hour-$minute")
+        val date = SimpleDateFormat("dd-MM-yyyy-HH-mm").parse("$day-${month+1}-$year-$hour-$minute")
 
         val userFormat = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm")
-        
+
         if (lastCalendarButton == 0) {
             dateFrom.setText(userFormat.format(date))
             dateFromValue = date
@@ -240,4 +283,6 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         }
 
     }
+    //----------------------------------------------------------------------------------------------
+
 }
