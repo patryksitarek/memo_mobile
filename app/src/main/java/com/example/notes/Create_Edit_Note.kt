@@ -45,6 +45,8 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         auth = FirebaseAuth.getInstance()
         setContentView(R.layout.note_creator)
 
+        Log.d("xD", lastCalendarButton.toString())
+
         //EDYTOWANIE
         if (intent.hasExtra("title"))  noteTitle.setText(intent.getStringExtra("title"))
         if (intent.hasExtra("content")) noteContent.setText(intent.getStringExtra("content"))
@@ -103,12 +105,11 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         noteContent.setText(n["text"] as String)
                         val authors = n.get("author") as ArrayList<DocumentReference>
 
-                        if (dateFrom.text.isEmpty() || dateUntil.text.isEmpty()) {
+                        if (lastCalendarButton == -1) {
                             data = hashMapOf(
                                 "author" to authors,
                                 "title" to title,
-                                "text" to content,
-                                "isEvent" to false
+                                "text" to content
                             )
                         } else {
                             data = hashMapOf(
@@ -122,7 +123,6 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         }
 
 
-
                         db.collection("notes").document(noteId).update(data as Map<String, Any>)
                             .addOnSuccessListener {
                                 Log.d("FragmentActivity", "Successfully edited!")
@@ -134,7 +134,7 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                                 this.finish()
                             }
                             .addOnFailureListener { exception ->
-                                Log.w("FragmentActivity", "Error writing document", exception)
+                                Log.d("FragmentActivity", "Error writing document", exception)
                                 Toast.makeText(
                                     applicationContext,
                                     "Failed to save",
@@ -166,22 +166,31 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         )
                     }
 
+                    data = hashMapOf(
+                        "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
+                        "title" to title,
+                        "text" to content,
+                        "created" to FieldValue.serverTimestamp(),
+                        "isEvent" to false
+                    )
+
+
+
                     db.collection("notes")
                         .add(data)
                         .addOnSuccessListener {
                             Log.d("FragmentActivity", "DocumentSnapshot successfully written!")
-                            Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT).show()
                             this.finish()
                         }
                         .addOnFailureListener { e ->
                             Log.w("FragmentActivity", "Error writing document", e)
-                            Toast.makeText(applicationContext, "Failed to save", Toast.LENGTH_SHORT)
-                                .show()
+                            Toast.makeText(applicationContext, "Failed to save", Toast.LENGTH_SHORT).show()
                         }
                 }
 
             } else Toast.makeText(applicationContext, "Note is empty!", Toast.LENGTH_SHORT).show()
+
         } else if (item.itemId == R.id.shareButton) {
             val mDialogView = LayoutInflater.from(this).inflate(R.layout.popup_input, null)
             val mBuilder = AlertDialog.Builder(this).setView(mDialogView)
