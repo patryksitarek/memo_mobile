@@ -1,13 +1,22 @@
 package com.example.notes
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.*
+import android.view.View
+import android.widget.DatePicker
+import android.widget.TimePicker
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.Timestamp
@@ -15,17 +24,22 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import kotlinx.android.synthetic.main.note_creator.*
 import kotlinx.android.synthetic.main.popup_input.view.*
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.IOException
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener  {
 
     private var shareNoteTo = ""
-
     private var day = 0
     private var month = 0
     private var year = 0
@@ -38,14 +52,16 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
     private lateinit var auth: FirebaseAuth
     private val db = FirebaseFirestore.getInstance()
 
+    private val storageRef = FirebaseStorage.getInstance().reference.child("images")
+    private lateinit var photoUri: Uri
+    private lateinit var photoUUID: UUID
+
     private lateinit var data: HashMap<String, Any>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
         setContentView(R.layout.note_creator)
-
-        Log.d("xD", lastCalendarButton.toString())
 
         //EDYTOWANIE
         if (intent.hasExtra("title"))  noteTitle.setText(intent.getStringExtra("title"))
@@ -65,9 +81,6 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         dateFromButton.setOnClickListener {
             val dateDialog = DatePickerDialog()
             dateDialog.show(supportFragmentManager, "date_picker")
-
-            val test: Boolean = dateFrom.text.isEmpty()
-            Log.d("xD", test.toString())
 
             lastCalendarButton = 0
         }
@@ -166,14 +179,10 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         )
                     }
 
-                    data = hashMapOf(
-                        "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
-                        "title" to title,
-                        "text" to content,
-                        "created" to FieldValue.serverTimestamp(),
-                        "isEvent" to false
-                    )
 
+                    if (this::photoUri.isInitialized) {
+                        storageRef.child(photoUUID.toString()).putFile(photoUri)
+                    }
 
 
                     db.collection("notes")
@@ -259,8 +268,28 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         }
                     }
             }
+        } else if (item.itemId == R.id.attachButton) {
+            showFileChooser()
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun showFileChooser(){
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        startActivityForResult(intent, 1234)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1234) {
+            photoUri = data?.data!!
+            photoUUID = UUID.randomUUID()
+            imageAttach.setImageURI(photoUri)
+            noteContent.setVisibility(View.GONE)
+            imageAttach.setVisibility(View.VISIBLE)
+
+        }
     }
 
     //---------------------------------DATA-TIME-PICKERS--------------------------------------------

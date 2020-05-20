@@ -6,6 +6,10 @@
         android:icon="@drawable/ic_share_button"
         app:showAsAction="ifRoom" />
     <item
+        android:id="@+id/attachButton"
+        android:icon="@drawable/ic_attach_file"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/saveButton"
         android:icon="@drawable/ic_save_button"
         app:showAsAction="ifRoom" />

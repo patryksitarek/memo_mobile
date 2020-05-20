@@ -2,6 +2,7 @@ package com.example.notes
 
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.DialogFragment
 import java.util.Calendar
 
