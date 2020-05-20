@@ -5,6 +5,7 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -76,6 +77,20 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
             dateFrom.setText(sdf.format(unixDateFrom))
             dateUntil.setText(sdf.format(unixDateUntil))
         }
+        if (intent.hasExtra("photoUUID")) {
+            photoUUID = UUID.fromString(intent.getStringExtra("photoUUID"))
+            val tempFile = File.createTempFile("Images", "bmp")
+
+            val imageRef = storageRef.child(photoUUID.toString())
+            imageRef.getFile(tempFile).addOnSuccessListener{
+                    val bitmap = BitmapFactory.decodeFile(tempFile.absolutePath)
+                    imageAttach.setImageBitmap(bitmap)
+                    noteContent.setVisibility(View.GONE)
+                    imageAttach.setVisibility(View.VISIBLE)
+                }.addOnFailureListener{
+                Toast.makeText(applicationContext, "Something went wrong :(", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         //PRZYCISKI KALENDARZA
         dateFromButton.setOnClickListener {
@@ -84,13 +99,23 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 
             lastCalendarButton = 0
         }
-
         dateUntilButton.setOnClickListener {
             val dateDialog = DatePickerDialog()
             dateDialog.show(supportFragmentManager, "date_picker")
 
             lastCalendarButton = 1
         }
+
+        imageAttach.setOnLongClickListener(object: View.OnLongClickListener{
+            override fun onLongClick(v: View?): Boolean {
+                storageRef.child(photoUUID.toString()).delete().addOnSuccessListener {
+                    Toast.makeText(applicationContext, "Image deleted!", Toast.LENGTH_SHORT).show()
+                    noteContent.setVisibility(View.VISIBLE)
+                    imageAttach.setVisibility(View.GONE)
+                }
+                return true
+            }
+        })
     }
 
     //---------------------------------------MENU-BAR-----------------------------------------------
@@ -118,21 +143,21 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         noteContent.setText(n["text"] as String)
                         val authors = n.get("author") as ArrayList<DocumentReference>
 
-                        if (lastCalendarButton == -1) {
-                            data = hashMapOf(
-                                "author" to authors,
-                                "title" to title,
-                                "text" to content
-                            )
-                        } else {
-                            data = hashMapOf(
-                                "author" to authors,
-                                "title" to title,
-                                "text" to content,
-                                "isEvent" to true,
-                                "start" to Timestamp(dateFromValue),
-                                "end" to Timestamp(dateUntilValue)
-                            )
+                        data = hashMapOf(
+                            "author" to authors,
+                            "title" to title,
+                            "text" to content
+                        )
+
+                        if (lastCalendarButton != -1) {
+                            data.put("isEvent", true)
+                            data.put("start", Timestamp(dateFromValue))
+                            data.put("end", Timestamp(dateUntilValue))
+                        }
+
+                        if (this::photoUri.isInitialized) {
+                            storageRef.child(photoUUID.toString()).putFile(photoUri)
+                            data.put("photoUUID", photoUUID.toString())
                         }
 
 
@@ -158,32 +183,23 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 
                     //TWORZENIE NOWEJ NOTATKI
                 } else {
+                    data = hashMapOf(
+                        "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
+                        "title" to title,
+                        "text" to content,
+                        "created" to FieldValue.serverTimestamp()
+                    )
 
-                    if (dateFrom.text.isEmpty() || dateUntil.text.isEmpty()) {
-                        data = hashMapOf(
-                            "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
-                            "title" to title,
-                            "text" to content,
-                            "created" to FieldValue.serverTimestamp(),
-                            "isEvent" to false
-                        )
-                    } else {
-                        data = hashMapOf(
-                            "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
-                            "title" to title,
-                            "text" to content,
-                            "created" to FieldValue.serverTimestamp(),
-                            "isEvent" to true,
-                            "start" to Timestamp(dateFromValue),
-                            "end" to Timestamp(dateUntilValue)
-                        )
+                    if (!(dateFrom.text.isEmpty()) && !(dateUntil.text.isEmpty())) {
+                        data.put("isEvent", true)
+                        data.put("start", Timestamp(dateFromValue))
+                        data.put("end", Timestamp(dateUntilValue))
                     }
-
 
                     if (this::photoUri.isInitialized) {
                         storageRef.child(photoUUID.toString()).putFile(photoUri)
+                        data.put("photoUUID", photoUUID.toString())
                     }
-
 
                     db.collection("notes")
                         .add(data)
@@ -273,8 +289,12 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         }
         return super.onOptionsItemSelected(item)
     }
+    //----------------------------------------------------------------------------------------------
 
-    private fun showFileChooser(){
+
+
+    //--------------------------------------FILE-CHOOSER--------------------------------------------
+    private fun showFileChooser() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
         startActivityForResult(intent, 1234)
@@ -284,13 +304,15 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1234) {
             photoUri = data?.data!!
-            photoUUID = UUID.randomUUID()
+            if(!(this::photoUUID.isInitialized)) photoUUID = UUID.randomUUID()
             imageAttach.setImageURI(photoUri)
             noteContent.setVisibility(View.GONE)
             imageAttach.setVisibility(View.VISIBLE)
-
         }
     }
+    //----------------------------------------------------------------------------------------------
+
+
 
     //---------------------------------DATA-TIME-PICKERS--------------------------------------------
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
