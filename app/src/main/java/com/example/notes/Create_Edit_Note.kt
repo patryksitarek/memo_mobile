@@ -108,6 +108,13 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 
         imageAttach.setOnLongClickListener(object: View.OnLongClickListener{
             override fun onLongClick(v: View?): Boolean {
+                val noteId = intent.extras?.get("id") as String
+                val docRef = db.collection("notes").document(noteId)
+                val updates = hashMapOf<String, Any>(
+                    "photoUUID" to FieldValue.delete()
+                )
+                docRef.update(updates)
+
                 storageRef.child(photoUUID.toString()).delete().addOnSuccessListener {
                     Toast.makeText(applicationContext, "Image deleted!", Toast.LENGTH_SHORT).show()
                     noteContent.setVisibility(View.VISIBLE)
@@ -306,6 +313,7 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
             photoUri = data?.data!!
             if(!(this::photoUUID.isInitialized)) photoUUID = UUID.randomUUID()
             imageAttach.setImageURI(photoUri)
+
             noteContent.setVisibility(View.GONE)
             imageAttach.setVisibility(View.VISIBLE)
         }
