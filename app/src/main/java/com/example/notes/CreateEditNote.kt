@@ -69,13 +69,9 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         if (intent.hasExtra("content")) noteContent.setText(intent.getStringExtra("content"))
         if (intent.hasExtra("dateFrom")) {
             val dateFromInSeconds = intent.getStringExtra("dateFrom").substring(18, 28) + "000"
-            val dateUntilInSeconds = intent.getStringExtra("dateUntil").substring(18, 28) + "000"
-
             val sdf = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm")
             val unixDateFrom = java.util.Date(dateFromInSeconds.toLong())
-            val unixDateUntil = java.util.Date(dateUntilInSeconds.toLong())
             dateFrom.setText(sdf.format(unixDateFrom))
-            dateUntil.setText(sdf.format(unixDateUntil))
         }
         if (intent.hasExtra("photoUUID")) {
             photoUUID = UUID.fromString(intent.getStringExtra("photoUUID"))
@@ -92,18 +88,12 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
             }
         }
 
-        //PRZYCISKI KALENDARZA
-        dateFromButton.setOnClickListener {
+        //PRZYCISK KALENDARZA
+        dateLayout.setOnClickListener {
             val dateDialog = DatePickerDialog()
             dateDialog.show(supportFragmentManager, "date_picker")
 
             lastCalendarButton = 0
-        }
-        dateUntilButton.setOnClickListener {
-            val dateDialog = DatePickerDialog()
-            dateDialog.show(supportFragmentManager, "date_picker")
-
-            lastCalendarButton = 1
         }
 
         imageAttach.setOnLongClickListener(object: View.OnLongClickListener{
@@ -159,7 +149,6 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         if (lastCalendarButton != -1) {
                             data.put("isEvent", true)
                             data.put("start", Timestamp(dateFromValue))
-                            data.put("end", Timestamp(dateUntilValue))
                         }
 
                         if (this::photoUri.isInitialized) {
@@ -197,10 +186,9 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         "created" to FieldValue.serverTimestamp()
                     )
 
-                    if (!(dateFrom.text.isEmpty()) && !(dateUntil.text.isEmpty())) {
+                    if (!dateFrom.text.isEmpty()) {
                         data.put("isEvent", true)
                         data.put("start", Timestamp(dateFromValue))
-                        data.put("end", Timestamp(dateUntilValue))
                     }
 
                     if (this::photoUri.isInitialized) {

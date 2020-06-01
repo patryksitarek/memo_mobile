@@ -76,141 +76,60 @@ class MainActivity : AppCompatActivity() {
     private fun loadNotes() {
         Log.d("xD", radioFilter.checkedRadioButtonId.toString())
 
-        if (radioFilter.checkedRadioButtonId == 2131230949) {
-            val docRef = db.collection("notes")
-                .whereArrayContains("author", db.document("users/${auth.currentUser!!.uid}"))
-                .orderBy("created", Query.Direction.DESCENDING)
-                .addSnapshotListener { snapshot, e ->
-                    if (e != null) {
-                        Log.w("FragmentActivity", "Listen failed.", e)
-                        return@addSnapshotListener
-                    }
+        val docRef = db.collection("notes")
+            .whereArrayContains("author", db.document("users/${auth.currentUser!!.uid}"))
 
-                    if (snapshot != null && snapshot.documents.isNotEmpty()) { // && snapshot.exists()) {
-                        notesList = ArrayList()
-                        for (doc in snapshot.documents) {
-                            val data = doc.data
-                            if (!searchText.text.isNullOrEmpty()) {
-                                val titleContains = data!!["title"].toString().contains(searchText.text, ignoreCase = true)
-                                val textContains = data!!["text"].toString().contains(searchText.text, ignoreCase = true)
-                                if (titleContains || textContains) {
-                                    data?.set("id", doc.id)
-                                    notesList.add(data!!)
-                                }
-                            } else {
+            .orderBy("created", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) {
+                    Log.w("FragmentActivity", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.documents.isNotEmpty()) { // && snapshot.exists()) {
+                    notesList = ArrayList()
+
+                    for (doc in snapshot.documents) {
+                        val data = doc.data
+
+                        //TEXT FILTER, TRUE IF SEARCHBAR EMPTY
+                        val titleContains = data!!["title"].toString().contains(searchText.text, ignoreCase = true)
+                        val textContains = data!!["text"].toString().contains(searchText.text, ignoreCase = true)
+
+                        if (titleContains || textContains) {
+                            Log.d("xDD", "===============")
+                            Log.d("xDD", data!!.toString())
+                            if (radioFilter.checkedRadioButtonId == 2131230950) {
+                                //RADIO BUTTON ALL
                                 data?.set("id", doc.id)
                                 notesList.add(data!!)
-                            }
-                        }
-                        setAdapter(notesList)
-                    } else {
-                        Log.d("FragmentActivity", "Current data: null")
-                    }
-                }
-        } else if (radioFilter.checkedRadioButtonId == 2131230950) {
-            val docRef = db.collection("notes")
-                .whereArrayContains("author", db.document("users/${auth.currentUser!!.uid}"))
-                .whereEqualTo("isEvent", true)
-                .orderBy("created", Query.Direction.DESCENDING)
-                .addSnapshotListener { snapshot, e ->
-                    if (e != null) {
-                        Log.w("FragmentActivity", "Listen failed.", e)
-                        return@addSnapshotListener
-                    }
-
-                    if (snapshot != null && snapshot.documents.isNotEmpty()) { // && snapshot.exists()) {
-                        notesList = ArrayList()
-                        for (doc in snapshot.documents) {
-                            val data = doc.data
-                            if (!searchText.text.isNullOrEmpty()) {
-                                val titleContains = data!!["title"].toString().contains(searchText.text, ignoreCase = true)
-                                val textContains = data!!["text"].toString().contains(searchText.text, ignoreCase = true)
-                                if (titleContains || textContains) {
-                                    data?.set("id", doc.id)
-                                    notesList.add(data!!)
-                                }
-                            } else {
-                                data?.set("id", doc.id)
-                                notesList.add(data!!)
-                            }
-                        }
-                        setAdapter(notesList)
-                    } else {
-                        Log.d("FragmentActivity", "Current data: null")
-                    }
-                }
-        } else if (radioFilter.checkedRadioButtonId == 2131230952) {
-            val docRef = db.collection("notes")
-                .whereArrayContains("author", db.document("users/${auth.currentUser!!.uid}"))
-                .orderBy("created", Query.Direction.DESCENDING)
-                .addSnapshotListener { snapshot, e ->
-                    if (e != null) {
-                        Log.w("FragmentActivity", "Listen failed.", e)
-                        return@addSnapshotListener
-                    }
-
-                    if (snapshot != null && snapshot.documents.isNotEmpty()) { // && snapshot.exists()) {
-                        notesList = ArrayList()
-                        for (doc in snapshot.documents) {
-                            val data = doc.data
-                            if (!searchText.text.isNullOrEmpty()) {
-                                val titleContains = data!!["title"].toString().contains(searchText.text, ignoreCase = true)
-                                val textContains = data!!["text"].toString().contains(searchText.text, ignoreCase = true)
-                                if (titleContains || textContains) {
-                                    if (data!!["photoUUID"] != null) {
-                                        data?.set("id", doc.id)
-                                        notesList.add(data!!)
-                                    }
-                                }
-                            } else {
+                                Log.d("xDD", data!!.toString())
+                            } else if (radioFilter.checkedRadioButtonId == 2131230953) {
+                                //RADIO BUTTON PHOTO
                                 if (data!!["photoUUID"] != null) {
                                     data?.set("id", doc.id)
                                     notesList.add(data!!)
                                 }
-                            }
-                        }
-                        setAdapter(notesList)
-                    } else {
-                        Log.d("FragmentActivity", "Current data: null")
-                    }
-                }
-        } else if (radioFilter.checkedRadioButtonId == 2131230953) {
-            val docRef = db.collection("notes")
-                .whereArrayContains("author", db.document("users/${auth.currentUser!!.uid}"))
-                .orderBy("created", Query.Direction.DESCENDING)
-                .addSnapshotListener { snapshot, e ->
-                    if (e != null) {
-                        Log.w("FragmentActivity", "Listen failed.", e)
-                        return@addSnapshotListener
-                    }
-
-                    if (snapshot != null && snapshot.documents.isNotEmpty()) { // && snapshot.exists()) {
-                        notesList = ArrayList()
-                        for (doc in snapshot.documents) {
-                            val data = doc.data
-                            if (!searchText.text.isNullOrEmpty()) {
-                                val titleContains = data!!["title"].toString().contains(searchText.text, ignoreCase = true)
-                                val textContains = data!!["text"].toString().contains(searchText.text, ignoreCase = true)
-                                if (titleContains || textContains) {
-                                    if (data!!["photoUUID"] == null) {
-                                        data?.set("id", doc.id)
-                                        notesList.add(data!!)
-                                    }
-                                }
-                            } else {
+                            } else if (radioFilter.checkedRadioButtonId == 2131230954) {
+                                //RADIO BUTTON TEXT
                                 if (data!!["photoUUID"] == null) {
+                                    data?.set("id", doc.id)
+                                    notesList.add(data!!)
+                                }
+                            } else if (radioFilter.checkedRadioButtonId == 2131230951){
+                                //RADIO BUTTON EVENT
+                                if (data!!["isEvent"] == true) {
                                     data?.set("id", doc.id)
                                     notesList.add(data!!)
                                 }
                             }
                         }
-                        setAdapter(notesList)
+                    }
+                    setAdapter(notesList)
                     } else {
                         Log.d("FragmentActivity", "Current data: null")
                     }
-                }
-        }
-
+            }
     }
 
     fun searchButton(v: View) {

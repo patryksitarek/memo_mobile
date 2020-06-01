@@ -70,7 +70,6 @@ class CardViewAdapter(val context: Context,
 
             if (currentNote["isEvent"] == true) {
                 editIntent.putExtra("dateFrom", currentNote["start"].toString())
-                editIntent.putExtra("dateUntil", currentNote["end"].toString())
             }
 
             if (currentNote["photoUUID"] != null) {

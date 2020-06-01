@@ -78,6 +78,7 @@
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
+            android:id="@+id/dateLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -91,12 +92,12 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_template"
                 android:gravity="center"
-                android:hint="from"
+                android:hint="date"
                 android:textAlignment="center"
                 android:textSize="16dp"
                 android:textColor="@color/colorPrimaryDark"/>
 
-            <ImageButton
+            <ImageView
                 android:id="@+id/dateFromButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -112,7 +113,7 @@
             android:layout_weight="1"
             android:orientation="horizontal">
 
-            <TextView
+            <EditText
                 android:id="@+id/dateUntil"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -120,21 +121,21 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_template"
                 android:gravity="center"
-                android:hint="until"
+                android:hint="#my #tags"
                 android:textAlignment="center"
                 android:textSize="16dp"
                 android:textColor="@color/colorPrimaryDark"/>
 
-            <ImageButton
-                android:id="@+id/dateUntilButton"
+            <TextView
+                android:id="@+id/hashtagButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:padding="5dp"
-                app:srcCompat="@drawable/ic_calendar_36dp" />
+                android:text="#"
+                android:textSize="24dp"
+                android:textColor="@color/cardview_light_background"/>
         </LinearLayout>
 
     </LinearLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
