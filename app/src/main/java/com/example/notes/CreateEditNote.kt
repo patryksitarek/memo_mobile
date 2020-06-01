@@ -67,6 +67,8 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         //EDYTOWANIE
         if (intent.hasExtra("title"))  noteTitle.setText(intent.getStringExtra("title"))
         if (intent.hasExtra("content")) noteContent.setText(intent.getStringExtra("content"))
+        if (intent.hasExtra("tags")) noteTags.setText(intent.getStringExtra("tags").replace(",", ""))
+
         if (intent.hasExtra("dateFrom")) {
             val dateFromInSeconds = intent.getStringExtra("dateFrom").substring(18, 28) + "000"
             val sdf = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm")
@@ -127,6 +129,8 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
             //------------------------------ZAPISYWANIE---------------------------------------------
             val title = noteTitle.text.toString()
             val content = noteContent.text.toString()
+            val tags = noteTags.text.split(" ")
+            Log.d("split", tags.toString())
 
             if (!title.isNullOrEmpty() || !content.isNullOrEmpty()) {
 
@@ -143,7 +147,8 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         data = hashMapOf(
                             "author" to authors,
                             "title" to title,
-                            "text" to content
+                            "text" to content,
+                            "tags" to tags
                         )
 
                         if (lastCalendarButton != -1) {
@@ -183,6 +188,7 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                         "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
                         "title" to title,
                         "text" to content,
+                        "tags" to tags,
                         "created" to FieldValue.serverTimestamp()
                     )
 
@@ -333,9 +339,6 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         if (lastCalendarButton == 0) {
             dateFrom.setText(userFormat.format(date))
             dateFromValue = date
-        } else {
-            dateUntil.setText(userFormat.format(date))
-            dateUntilValue = date
         }
 
     }

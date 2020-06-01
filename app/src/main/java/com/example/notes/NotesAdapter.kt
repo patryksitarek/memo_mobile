@@ -61,11 +61,13 @@ class CardViewAdapter(val context: Context,
             val editId = currentNote["id"] ?: ""
             val editTitle = currentNote["title"] ?: ""
             val editContent = currentNote["text"] ?: ""
+            val editTags = currentNote["tags"].toString()
             val editDate = currentNote["date"] ?: ""
 
             editIntent.putExtra("id", editId as String)
             editIntent.putExtra("title", editTitle as String)
             editIntent.putExtra("content", editContent as String)
+            editIntent.putExtra("tags", editTags.substring(1, editTags.length - 1))
             editIntent.putExtra("date", editDate as String)
 
             if (currentNote["isEvent"] == true) {

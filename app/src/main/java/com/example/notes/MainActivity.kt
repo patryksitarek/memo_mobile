@@ -74,11 +74,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadNotes() {
-        Log.d("xD", radioFilter.checkedRadioButtonId.toString())
 
         val docRef = db.collection("notes")
             .whereArrayContains("author", db.document("users/${auth.currentUser!!.uid}"))
-
             .orderBy("created", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, e ->
                 if (e != null) {
@@ -97,26 +95,23 @@ class MainActivity : AppCompatActivity() {
                         val textContains = data!!["text"].toString().contains(searchText.text, ignoreCase = true)
 
                         if (titleContains || textContains) {
-                            Log.d("xDD", "===============")
-                            Log.d("xDD", data!!.toString())
-                            if (radioFilter.checkedRadioButtonId == 2131230950) {
+                            if (radioFilter.checkedRadioButtonId == radioAll.id) {
                                 //RADIO BUTTON ALL
                                 data?.set("id", doc.id)
                                 notesList.add(data!!)
-                                Log.d("xDD", data!!.toString())
-                            } else if (radioFilter.checkedRadioButtonId == 2131230953) {
+                            } else if (radioFilter.checkedRadioButtonId == radioPhoto.id) {
                                 //RADIO BUTTON PHOTO
                                 if (data!!["photoUUID"] != null) {
                                     data?.set("id", doc.id)
                                     notesList.add(data!!)
                                 }
-                            } else if (radioFilter.checkedRadioButtonId == 2131230954) {
+                            } else if (radioFilter.checkedRadioButtonId == radioText.id) {
                                 //RADIO BUTTON TEXT
                                 if (data!!["photoUUID"] == null) {
                                     data?.set("id", doc.id)
                                     notesList.add(data!!)
                                 }
-                            } else if (radioFilter.checkedRadioButtonId == 2131230951){
+                            } else if (radioFilter.checkedRadioButtonId == radioEvent.id){
                                 //RADIO BUTTON EVENT
                                 if (data!!["isEvent"] == true) {
                                     data?.set("id", doc.id)
