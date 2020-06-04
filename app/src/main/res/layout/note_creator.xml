@@ -69,6 +69,20 @@
         app:layout_constraintTop_toBottomOf="@+id/noteTitle"
         android:visibility="gone"/>
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="save"
+        android:onClick="floatingSaveButton"
+        android:src="@drawable/ic_save_button_large"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout2"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
@@ -121,7 +135,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/input_template"
                 android:gravity="center"
-                android:hint="#my #tags"
+                android:hint="my tags"
                 android:textAlignment="center"
                 android:textSize="16dp"
                 android:textColor="@color/colorPrimaryDark"/>
@@ -137,4 +151,5 @@
         </LinearLayout>
 
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -56,6 +56,8 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
 
     private val storageRef = FirebaseStorage.getInstance().reference.child("images")
     private lateinit var photoUri: Uri
+    private lateinit var imageBitmap: Bitmap
+
     private lateinit var photoUUID: UUID
 
     val REQUEST_IMAGE_CAPTURE = 1
@@ -132,103 +134,128 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         return super.onCreateOptionsMenu(menu)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean { //ODPOWIEDNIK onClickListener
-        if (item.itemId == R.id.saveButton) {
+    fun floatingSaveButton(v: View) {
 
-            //------------------------------ZAPISYWANIE---------------------------------------------
-            val title = noteTitle.text.toString()
-            val content = noteContent.text.toString()
-            val tags = noteTags.text.split(" ")
-
-
-            if (!title.isNullOrEmpty() || !content.isNullOrEmpty()) {
-
-                //EDYCJA ISTNIEJACEJ NOTATKI
-                if (intent.hasExtra("id")) {
-                    val noteId = intent.extras?.get("id") as String
-
-                    db.collection("notes").document(noteId).get().addOnSuccessListener { n ->
-                        // Add
-                        val noteRef = n.reference
-                        noteContent.setText(n["text"] as String)
-                        val authors = n.get("author") as ArrayList<DocumentReference>
-
-                        data = hashMapOf(
-                            "author" to authors,
-                            "title" to title,
-                            "text" to content,
-                            "tags" to tags
-                        )
-
-                        if (lastCalendarButton != -1) {
-                            data.put("isEvent", true)
-                            data.put("start", Timestamp(dateFromValue))
-                        }
-
-                        if (this::photoUri.isInitialized) {
-                            storageRef.child(photoUUID.toString()).putFile(photoUri)
-                            data.put("photoUUID", photoUUID.toString())
-                        }
+        //------------------------------ZAPISYWANIE---------------------------------------------
+        val title = noteTitle.text.toString()
+        val content = noteContent.text.toString()
+        val tags = noteTags.text.split(" ")
 
 
-                        db.collection("notes").document(noteId).update(data as Map<String, Any>)
-                            .addOnSuccessListener {
-                                Log.d("FragmentActivity", "Successfully edited!")
-                                Toast.makeText(
-                                    applicationContext,
-                                    "Note saved!",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                this.finish()
-                            }
-                            .addOnFailureListener { exception ->
-                                Log.d("FragmentActivity", "Error writing document", exception)
-                                Toast.makeText(
-                                    applicationContext,
-                                    "Failed to save",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                    }
+        if (!title.isNullOrEmpty() || !content.isNullOrEmpty()) {
 
-                    //TWORZENIE NOWEJ NOTATKI
-                } else {
+            //EDYCJA ISTNIEJACEJ NOTATKI
+            if (intent.hasExtra("id")) {
+                val noteId = intent.extras?.get("id") as String
+
+                db.collection("notes").document(noteId).get().addOnSuccessListener { n ->
+                    // Add
+                    val noteRef = n.reference
+                    noteContent.setText(n["text"] as String)
+                    val authors = n.get("author") as ArrayList<DocumentReference>
+
                     data = hashMapOf(
-                        "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
+                        "author" to authors,
                         "title" to title,
                         "text" to content,
-                        "tags" to tags,
-                        "created" to FieldValue.serverTimestamp()
+                        "tags" to tags
                     )
 
-                    if (!dateFrom.text.isEmpty()) {
+                    if (lastCalendarButton != -1) {
                         data.put("isEvent", true)
                         data.put("start", Timestamp(dateFromValue))
-
-                        alarmManager.set(AlarmManager.RTC_WAKEUP, dateFromValue.time, alarmIntent)
                     }
 
-                    if (this::photoUri.isInitialized) {
-                        storageRef.child(photoUUID.toString()).putFile(photoUri)
+                    if (this::photoUri.isInitialized || this::imageBitmap.isInitialized) {
+                        /*storageRef.child(photoUUID.toString()).putFile(photoUri)
+                        data.put("photoUUID", photoUUID.toString())*/
+
+                        imageAttach.isDrawingCacheEnabled = true
+                        imageAttach.buildDrawingCache()
+                        val bitmap = (imageAttach.drawable as BitmapDrawable).bitmap
+                        val baos = ByteArrayOutputStream()
+
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                        val imageFile = baos.toByteArray()
+
+                        storageRef.child(photoUUID.toString()).putBytes(imageFile)
                         data.put("photoUUID", photoUUID.toString())
                     }
 
-                    db.collection("notes")
-                        .add(data)
+
+                    db.collection("notes").document(noteId).update(data as Map<String, Any>)
                         .addOnSuccessListener {
-                            Log.d("FragmentActivity", "DocumentSnapshot successfully written!")
-                            Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT).show()
+                            Log.d("FragmentActivity", "Successfully edited!")
+                            Toast.makeText(
+                                applicationContext,
+                                "Note saved!",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             this.finish()
                         }
-                        .addOnFailureListener { e ->
-                            Log.w("FragmentActivity", "Error writing document", e)
-                            Toast.makeText(applicationContext, "Failed to save", Toast.LENGTH_SHORT).show()
+                        .addOnFailureListener { exception ->
+                            Log.d("FragmentActivity", "Error writing document", exception)
+                            Toast.makeText(
+                                applicationContext,
+                                "Failed to save",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                 }
 
-            } else Toast.makeText(applicationContext, "Note is empty!", Toast.LENGTH_SHORT).show()
+                //TWORZENIE NOWEJ NOTATKI
+            } else {
+                data = hashMapOf(
+                    "author" to arrayListOf(db.document("users/${auth.currentUser!!.uid}")),
+                    "title" to title,
+                    "text" to content,
+                    "tags" to tags,
+                    "created" to FieldValue.serverTimestamp()
+                )
 
-        } else if (item.itemId == R.id.shareButton) {
+                if (!dateFrom.text.isEmpty()) {
+                    data.put("isEvent", true)
+                    data.put("start", Timestamp(dateFromValue))
+
+                    alarmManager.set(AlarmManager.RTC_WAKEUP, dateFromValue.time, alarmIntent)
+                }
+
+
+                if (this::photoUri.isInitialized || this::imageBitmap.isInitialized) {
+
+                    imageAttach.isDrawingCacheEnabled = true
+                    imageAttach.buildDrawingCache()
+                    val bitmap = (imageAttach.drawable as BitmapDrawable).bitmap
+                    val baos = ByteArrayOutputStream()
+
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+                    val imageFile = baos.toByteArray()
+
+                    storageRef.child(photoUUID.toString()).putBytes(imageFile)
+                    data.put("photoUUID", photoUUID.toString())
+                }
+
+                db.collection("notes")
+                    .add(data)
+                    .addOnSuccessListener {
+                        Log.d("FragmentActivity", "DocumentSnapshot successfully written!")
+                        Toast.makeText(applicationContext, "Note saved!", Toast.LENGTH_SHORT).show()
+                        this.finish()
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w("FragmentActivity", "Error writing document", e)
+                        Toast.makeText(applicationContext, "Failed to save", Toast.LENGTH_SHORT).show()
+                    }
+            }
+
+        } else Toast.makeText(applicationContext, "Note is empty!", Toast.LENGTH_SHORT).show()
+
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean { //ODPOWIEDNIK onClickListener
+
+        if (item.itemId == R.id.shareButton) {
             val mDialogView = LayoutInflater.from(this).inflate(R.layout.popup_input, null)
             val mBuilder = AlertDialog.Builder(this).setView(mDialogView)
             val mAlertDialog = mBuilder.show()
@@ -298,6 +325,9 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
             }
         } else if (item.itemId == R.id.attachButton) {
             showFileChooser()
+            //dispatchTakePictureIntent()
+        } else if (item.itemId == R.id.cameraButton) {
+            dispatchTakePictureIntent()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -311,12 +341,27 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
         startActivityForResult(intent, REQUEST_ATTACH_FILE)
     }
 
+    private fun dispatchTakePictureIntent() {
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+            takePictureIntent.resolveActivity(packageManager)?.also {
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+            }
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_ATTACH_FILE) {
             photoUri = data?.data!!
             if(!(this::photoUUID.isInitialized)) photoUUID = UUID.randomUUID()
             imageAttach.setImageURI(photoUri)
+
+            noteContent.setVisibility(View.GONE)
+            imageAttach.setVisibility(View.VISIBLE)
+        } else if (requestCode == REQUEST_IMAGE_CAPTURE) {
+            imageBitmap = data?.extras?.get("data") as Bitmap
+            imageAttach.setImageBitmap(imageBitmap)
+            if(!(this::photoUUID.isInitialized)) photoUUID = UUID.randomUUID()
 
             noteContent.setVisibility(View.GONE)
             imageAttach.setVisibility(View.VISIBLE)

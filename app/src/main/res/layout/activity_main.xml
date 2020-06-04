@@ -124,7 +124,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/input_template"
                     android:gravity="center"
-                    android:hint="#my #tags"
+                    android:hint="my tags"
                     android:textAlignment="center"
                     android:textColor="@color/colorPrimaryDark"
                     android:textSize="16dp"/>

@@ -10,8 +10,8 @@
         android:icon="@drawable/ic_attach_file"
         app:showAsAction="ifRoom" />
     <item
-        android:id="@+id/saveButton"
-        android:icon="@drawable/ic_save_button"
+        android:id="@+id/cameraButton"
+        android:icon="@drawable/ic_camera"
         app:showAsAction="ifRoom" />
 
 
