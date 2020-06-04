@@ -45,11 +45,14 @@
             android:background="@color/colorPrimary"
             android:orientation="horizontal">
 
+
+
             <RadioGroup
                 android:id="@+id/radioFilter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginTop="3dp">
 
                 <RadioButton
                     android:id="@+id/radioAll"
@@ -59,8 +62,7 @@
                     android:checked="true"
                     android:text="all"
                     android:textColor="#FFFFFF"
-                    android:layout_marginEnd="30dp"
-                    android:layout_marginStart="30dp"/>
+                    android:layout_marginStart="5dp"/>
 
                 <RadioButton
                     android:id="@+id/radioPhoto"
@@ -69,7 +71,7 @@
                     android:buttonTint="@color/cardview_light_background"
                     android:text="photo"
                     android:textColor="#FFFFFF"
-                    android:layout_marginEnd="30dp"/>
+                    android:layout_marginStart="10dp"/>
 
                 <RadioButton
                     android:id="@+id/radioText"
@@ -78,7 +80,7 @@
                     android:buttonTint="@color/cardview_light_background"
                     android:text="text"
                     android:textColor="#FFFFFF"
-                    android:layout_marginEnd="30dp"/>
+                    android:layout_marginStart="10dp"/>
 
                 <RadioButton
                     android:id="@+id/radioEvent"
@@ -86,7 +88,17 @@
                     android:layout_height="wrap_content"
                     android:buttonTint="@color/cardview_light_background"
                     android:text="event"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="#FFFFFF"
+                    android:layout_marginStart="10dp"/>
+
+                <RadioButton
+                    android:id="@+id/radioNotEvent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/cardview_light_background"
+                    android:text="not event"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginStart="10dp"/>
             </RadioGroup>
 
         </LinearLayout>
@@ -97,6 +109,35 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/noteTagsFilter"
+                    android:layout_width="220dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/input_template"
+                    android:gravity="center"
+                    android:hint="#my #tags"
+                    android:textAlignment="center"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="16dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:padding="5dp"
+                    android:text="#"
+                    android:textSize="28dp"
+                    android:textColor="@color/cardview_light_background"/>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

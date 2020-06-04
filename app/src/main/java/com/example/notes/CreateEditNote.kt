@@ -1,8 +1,9 @@
 package com.example.notes
 
-import android.app.Activity
+import android.app.*
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -57,12 +58,20 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
     private lateinit var photoUri: Uri
     private lateinit var photoUUID: UUID
 
+    val REQUEST_IMAGE_CAPTURE = 1
+    val REQUEST_ATTACH_FILE = 2
     private lateinit var data: HashMap<String, Any>
+
+    lateinit var alarmManager: AlarmManager
+    lateinit var alarmIntent: PendingIntent
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         auth = FirebaseAuth.getInstance()
         setContentView(R.layout.note_creator)
+
+        alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmIntent = PendingIntent.getBroadcast(applicationContext, 0, Intent(applicationContext, AlarmReciver::class.java), 0)
 
         //EDYTOWANIE
         if (intent.hasExtra("title"))  noteTitle.setText(intent.getStringExtra("title"))
@@ -130,7 +139,7 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
             val title = noteTitle.text.toString()
             val content = noteContent.text.toString()
             val tags = noteTags.text.split(" ")
-            Log.d("split", tags.toString())
+
 
             if (!title.isNullOrEmpty() || !content.isNullOrEmpty()) {
 
@@ -195,6 +204,8 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
                     if (!dateFrom.text.isEmpty()) {
                         data.put("isEvent", true)
                         data.put("start", Timestamp(dateFromValue))
+
+                        alarmManager.set(AlarmManager.RTC_WAKEUP, dateFromValue.time, alarmIntent)
                     }
 
                     if (this::photoUri.isInitialized) {
@@ -293,17 +304,16 @@ class Create_Edit_Note : AppCompatActivity(), DatePickerDialog.OnDateSetListener
     //----------------------------------------------------------------------------------------------
 
 
-
     //--------------------------------------FILE-CHOOSER--------------------------------------------
     private fun showFileChooser() {
         val intent = Intent(Intent.ACTION_PICK)
         intent.type = "image/*"
-        startActivityForResult(intent, 1234)
+        startActivityForResult(intent, REQUEST_ATTACH_FILE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1234) {
+        if (requestCode == REQUEST_ATTACH_FILE) {
             photoUri = data?.data!!
             if(!(this::photoUUID.isInitialized)) photoUUID = UUID.randomUUID()
             imageAttach.setImageURI(photoUri)

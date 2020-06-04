@@ -14,6 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.note_creator.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -94,7 +95,17 @@ class MainActivity : AppCompatActivity() {
                         val titleContains = data!!["title"].toString().contains(searchText.text, ignoreCase = true)
                         val textContains = data!!["text"].toString().contains(searchText.text, ignoreCase = true)
 
-                        if (titleContains || textContains) {
+                        val dataTags = data!!["tags"].toString()
+                        val tags = noteTagsFilter.text.split(" ")
+
+                        var tagsContain = false
+                        for (tag in tags) {
+                            if (dataTags.contains(tag)) {
+                                tagsContain = true
+                            }
+                        }
+
+                        if ((titleContains || textContains) && tagsContain) {
                             if (radioFilter.checkedRadioButtonId == radioAll.id) {
                                 //RADIO BUTTON ALL
                                 data?.set("id", doc.id)
@@ -114,6 +125,12 @@ class MainActivity : AppCompatActivity() {
                             } else if (radioFilter.checkedRadioButtonId == radioEvent.id){
                                 //RADIO BUTTON EVENT
                                 if (data!!["isEvent"] == true) {
+                                    data?.set("id", doc.id)
+                                    notesList.add(data!!)
+                                }
+                            } else if (radioFilter.checkedRadioButtonId == radioNotEvent.id){
+                                //RADIO BUTTON NOT EVENT
+                                if (data!!["isEvent"] != true) {
                                     data?.set("id", doc.id)
                                     notesList.add(data!!)
                                 }
