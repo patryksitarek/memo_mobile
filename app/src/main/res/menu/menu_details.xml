@@ -13,6 +13,4 @@
         android:id="@+id/cameraButton"
         android:icon="@drawable/ic_camera"
         app:showAsAction="ifRoom" />
-
-
 </menu>

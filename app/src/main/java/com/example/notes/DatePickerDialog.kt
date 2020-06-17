@@ -16,8 +16,6 @@ class DatePickerDialog: DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return android.app.DatePickerDialog(requireActivity(), activity as android.app.DatePickerDialog.OnDateSetListener, year, month, day)
     }
-
-
 }
 
 

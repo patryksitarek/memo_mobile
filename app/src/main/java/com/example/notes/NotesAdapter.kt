@@ -12,8 +12,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.note_view.view.*
 
 
-class CardViewAdapter(val context: Context,
-                      var notes: ArrayList<Map<String, Any>>) : RecyclerView.Adapter<MyViewHolder>() {
+class CardViewAdapter(val context: Context, var notes: ArrayList<Map<String, Any>>) : RecyclerView.Adapter<MyViewHolder>() {
 
     private val db = FirebaseFirestore.getInstance()
 
@@ -27,10 +26,9 @@ class CardViewAdapter(val context: Context,
         return notes.size
     }
 
-
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
 
-        //-------------------------------------WYŚWIETLANIE NOTATKI---------------------------------
+        //print data in note
         val cardView_note = holder.view.cardView_note
         val title = holder.view.viewTitle
         val content = holder.view.viewContent
@@ -49,11 +47,9 @@ class CardViewAdapter(val context: Context,
         val sdf = java.text.SimpleDateFormat("dd.MM.yyyy HH:mm")
         val unixDate = java.util.Date(created.seconds * 1000)
         date.text = sdf.format(unixDate)
-        //------------------------------------------------------------------------------------------
 
 
-
-        //-----------------------------------EDYCJA NOTATKI-----------------------------------------
+        //edit note on click
         cardView_note.setOnClickListener {
             val editIntent = Intent(context, Create_Edit_Note::class.java)
 
@@ -81,12 +77,8 @@ class CardViewAdapter(val context: Context,
 
             context.startActivity(editIntent)
         }
-        //------------------------------------------------------------------------------------------
 
-
-
-
-        //----------------------------------USUWANIE NOTATKI----------------------------------------
+        //delete note on long click
         cardView_note.setOnLongClickListener(object: View.OnLongClickListener{
             override fun onLongClick(v: View?): Boolean {
                 val noteId = notes[holder.adapterPosition]["id"]
@@ -94,8 +86,6 @@ class CardViewAdapter(val context: Context,
                 return true
             }
         })
-
-        //------------------------------------------------------------------------------------------
     }
 }
 

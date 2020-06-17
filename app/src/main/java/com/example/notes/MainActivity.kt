@@ -7,15 +7,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.note_creator.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,9 +24,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         auth = FirebaseAuth.getInstance()
 
-        //recycler_view.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL) //siatka
-        recycler_view.layoutManager = LinearLayoutManager(applicationContext)
+        //recycler_view.layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL) //grid
+        recycler_view.layoutManager = LinearLayoutManager(applicationContext) //list
 
+        //switch to sign in
         if (auth.currentUser == null) {
             val intent = Intent(applicationContext, SignIn::class.java)
             startActivity(intent)
@@ -43,11 +40,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //inflate top bar
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_logout, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
+    //top bar button clicked
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item?.itemId == R.id.signOutButton) {
             auth.signOut()
@@ -63,9 +62,8 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-
+    //create note button clicked
     fun onClickCreateNote(v: View) {
-        System.out.println("Create note clicked")
         val intent = Intent(applicationContext, Create_Edit_Note::class.java)
         startActivity(intent)
     }
@@ -75,6 +73,7 @@ class MainActivity : AppCompatActivity() {
         loadNotes()
     }
 
+    //get notes from Firebase
     private fun loadNotes() {
 
         val docRef = db.collection("notes")
@@ -92,45 +91,39 @@ class MainActivity : AppCompatActivity() {
                     for (doc in snapshot.documents) {
                         val data = doc.data
 
-                        //TEXT FILTER, TRUE IF SEARCHBAR EMPTY
+                        //text filter, true if empty
                         val titleContains = data!!["title"].toString().contains(searchText.text, ignoreCase = true)
                         val textContains = data!!["text"].toString().contains(searchText.text, ignoreCase = true)
 
+                        //tags filter, true if empty
                         val dataTags = data!!["tags"].toString()
                         val tags = noteTagsFilter.text.split(" ")
-
                         var tagsContain = false
                         for (tag in tags) {
-                            if (dataTags.contains(tag)) {
-                                tagsContain = true
-                            }
+                            if (dataTags.contains(tag, ignoreCase = true)) tagsContain = true
                         }
 
                         if ((titleContains || textContains) && tagsContain) {
+                            //radio button filter
                             if (radioFilter.checkedRadioButtonId == radioAll.id) {
-                                //RADIO BUTTON ALL
                                 data?.set("id", doc.id)
                                 notesList.add(data!!)
                             } else if (radioFilter.checkedRadioButtonId == radioPhoto.id) {
-                                //RADIO BUTTON PHOTO
                                 if (data!!["photoUUID"] != null) {
                                     data?.set("id", doc.id)
                                     notesList.add(data!!)
                                 }
                             } else if (radioFilter.checkedRadioButtonId == radioText.id) {
-                                //RADIO BUTTON TEXT
                                 if (data!!["photoUUID"] == null) {
                                     data?.set("id", doc.id)
                                     notesList.add(data!!)
                                 }
                             } else if (radioFilter.checkedRadioButtonId == radioEvent.id){
-                                //RADIO BUTTON EVENT
                                 if (data!!["isEvent"] == true) {
                                     data?.set("id", doc.id)
                                     notesList.add(data!!)
                                 }
                             } else if (radioFilter.checkedRadioButtonId == radioNotEvent.id){
-                                //RADIO BUTTON NOT EVENT
                                 if (data!!["isEvent"] != true) {
                                     data?.set("id", doc.id)
                                     notesList.add(data!!)

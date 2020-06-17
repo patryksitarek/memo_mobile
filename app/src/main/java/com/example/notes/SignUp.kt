@@ -32,6 +32,7 @@ class SignUp : AppCompatActivity() {
 
     fun onClickSignUpButton(v: View) {
 
+        //----------------------------check-data----------------------------------------------------
         if (signUpUsername.text.toString().isEmpty()) {
             signUpUsername.error = "Please enter username"
             signUpUsername.requestFocus()
@@ -73,17 +74,13 @@ class SignUp : AppCompatActivity() {
             signUpPasswordRepeat.requestFocus()
             return
         }
+        //------------------------------------------------------------------------------------------
 
-        System.out.println("-----------------------------------------------")
-        System.out.println(signUpEmail.text)
-        System.out.println(signUpPassword.text)
-
-
+        //create user
         auth.createUserWithEmailAndPassword(signUpEmail.text.toString(), signUpPassword.text.toString())
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(baseContext, "Account created", Toast.LENGTH_SHORT).show()
-                    //System.out.println(auth.currentUser?.uid)
 
                     val data = hashMapOf(
                         "created" to FieldValue.serverTimestamp(),

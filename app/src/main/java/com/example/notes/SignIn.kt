@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.android.synthetic.main.sign_in.*
-import java.io.Console
 
 
 class SignIn : AppCompatActivity() {
@@ -38,10 +37,12 @@ class SignIn : AppCompatActivity() {
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
+    //switch to sign up
     fun onClickNeedAccount(v: View) {
         startActivity(Intent(this, SignUp::class.java))
     }
 
+    //sign in with Google
     fun onClickSignWithGoogle(v: View) {
         val signInIntent = mGoogleSignInClient.signInIntent
         startActivityForResult(signInIntent, RC_SIGN_IN)
@@ -50,7 +51,7 @@ class SignIn : AppCompatActivity() {
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        //Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
@@ -61,15 +62,14 @@ class SignIn : AppCompatActivity() {
                 updateUI(user)
             } catch (e: ApiException) {
                 // Google Sign In failed, update UI appropriately
-                System.out.println("Create note clicked")
+                Log.d("signin", e.toString())
             }
         }
     }
 
-
-
-
     fun onClickSignInButton(v: View) {
+
+        //----------------------------check-data----------------------------------------------------
         if (signInEmail.text.toString().isEmpty()) {
             signInEmail.error = "Please enter email"
             signInEmail.requestFocus()
@@ -93,7 +93,9 @@ class SignIn : AppCompatActivity() {
             signInPassword.requestFocus()
             return
         }
+        //------------------------------------------------------------------------------------------
 
+        //authorization
         auth.signInWithEmailAndPassword(signInEmail.text.toString(), signInPassword.text.toString())
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
