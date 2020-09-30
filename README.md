@@ -2,5 +2,5 @@
 
 Application for saving and sharing notes. 
 
-<img src=“screenshots/1.jpg”/>
-<img src=“screenshots/2.jpg”/>
+![main screen](screenshots/1.jpg)
+![add note](screenshots/2.jpg)
